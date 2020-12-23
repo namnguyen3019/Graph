@@ -3,6 +3,7 @@
     Do not need to travel every node in the graph
 '''
 import heapq
+import DaryHeap
 graph = {
     'A': {'B': 50, 'C': 45, 'D': 10},
     'B': {'C': 10, 'D': 15},
@@ -12,12 +13,21 @@ graph = {
     'F': {'E': 3}
 }
 
+# number of node:
+edge = 0
+n = 0
+for key in graph:
+    n += 1
+    for path in graph[key]:
+        edge += 1
+
 
 def dijkstra(graph, start, end):
     # unvisitedNodes store all unvisited nodes and its weight (or cost) in the graph
-    unvisitedNodes = []
+    # Using D-ary heap
+    unvisitedNodes = D_aryHeap(edge//n)
     # Go to "start" location to itself cost 0. Push it in the priority queue
-    heapq.heappush(unvisitedNodes, (0, start))
+    unvisitedNodes.insert((start, 0))
 
     # visited nodes
     visited = {}
@@ -35,7 +45,7 @@ def dijkstra(graph, start, end):
     while unvisitedNodes:
         # find the next node that is nearest the current node
         # Also pop the node from the priority queue
-        (min_cost, selected_node) = heapq.heappop(unvisitedNodes)
+        (selected_node, selected_node) = unvisitedNodes.extract_min()
         visited[selected_node] = True
         if dis[selected_node] < min_cost:
             continue
@@ -58,7 +68,6 @@ def dijkstra(graph, start, end):
                 track_precessor[child_node] = selected_node
 
                 # Push child_node to the queue. What if the child_node is already in the queue?
-
                 heapq.heappush(unvisitedNodes, (newWeight, child_node))
 
     # back tracking from to end to start
