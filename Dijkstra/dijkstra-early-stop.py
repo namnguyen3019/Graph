@@ -14,61 +14,50 @@ graph = {
 
 
 def dijkstra(graph, start, end):
-    # unvisitedNodes store all unvisited nodes and its weight (or cost) in the graph
-    unvisitedNodes = []
-    # Go to "start" location to itself cost 0. Push it in the priority queue
-    heapq.heappush(unvisitedNodes, (0, start))
 
-    # records of shorest path from start to a node
-    dis = {}
-    track_precessor = {}
-    # initialize the shorest_path with value to everynode is infinity
+    # records the shorest distance from node "start" to other nodes
+    shortest_dist = {}
     for node in graph:
-        dis[node] = float('inf')
-    # exception for start node: distance from start node to itself is 0
-    dis[start] = 0
+        shortest_dist[node] = float('inf')
+    # Initial the base case: travel shortest distance from start to start is 0
+    shortest_dist[start] = 0
 
-    # loop through all unvisted nodes
-    while unvisitedNodes:
-        # find the next node that is nearest the current node
-        # Also pop the node from the priority queue
-        (min_cost, selected_node) = heapq.heappop(unvisitedNodes)
+    # Store back tracking dictionary:
+    track_precessor = {}
+    # Track visited node
+    visited = {}
+    # Initial a priority queue:
+    pq = [(0, start)]
+    heapq.heapify(pq)
 
-        if dis[selected_node] < min_cost:
-            continue
+    while pq:
 
-        # Break the loop when reach the end_node => BREAK EARLY
-        if selected_node == end:
-            print('Stop early')
-            break
+        node = heapq.heappop(pq)[1]
 
-        # loop through every options of the next node just found
-        path_options = graph[selected_node].items()
+        visited[node] = True
+
+        path_options = graph[node].items()
+        
         for child_node, weight in path_options:
-            newWeight = dis[selected_node] + weight
-            if newWeight < dis[child_node]:
-                dis[child_node] = newWeight
-                # keep track of the path in track_precessor
-                track_precessor[child_node] = selected_node
-                # Push child_node to the queue
-                heapq.heappush(unvisitedNodes, (newWeight, child_node))
-
+            if child_node not in visited:
+                heapq.heappush(pq, (weight, child_node))
+            if weight + shortest_dist[node] < shortest_dist[child_node]:
+                shortest_dist[child_node] = weight + shortest_dist[node]
+                track_precessor[child_node] = node
+        if node == end: break
     # back tracking from to end to start
-    current_node = end
-    optimal_path = []
-    while current_node != start:
-        try:
-            optimal_path.insert(0, current_node)
-            current_node = track_precessor[current_node]
-        except KeyError:
-            print('Path not found')
-            break
-    optimal_path.insert(0, start)
 
-    if dis[end] != float('inf'):
-        print('Optimal path: ' + str(optimal_path))
-        print('Total cost: ' + str(dis[end]))
-
+    print("Shorest distance: ", shortest_dist[end])
+    if shortest_dist[end] != float('inf'):
+        cur_node = end
+        optimal_path = []
+        while cur_node != start:
+            optimal_path.insert(0, cur_node)
+            cur_node = track_precessor[cur_node]
+        optimal_path.insert(0, start)
+        print(optimal_path)
+    else:
+        print("Path not found")
 
 dijkstra(graph, 'A', 'E')  # result: 25
 dijkstra(graph, 'A', 'C')  # result: 45
