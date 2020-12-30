@@ -1,7 +1,9 @@
+import heapq
+
 graph = {
     'A': {'B': 50, 'C': 45, 'D': 10},
     'B': {'C': 10, 'D': 15},
-    'C': {'E': 30},
+    'C': {'E': 3},
     'D': {'A': 10, 'E': 15},
     'E': {'B': 20, 'C': 35},
     'F': {'E': 3}
@@ -9,36 +11,40 @@ graph = {
 
 
 def dijkstra(graph, start, end):
-    # unvisitedNodes store all unvisited nodes in the graph
-    unvisitedNodes = graph
 
     # records of shorest path from start to a node
     shortest_path = {}
-    track_precessor = {}
+
     # initialize the shorest_path with value to everynode is infinity
-    for node in unvisitedNodes:
+    for node in graph:
         shortest_path[node] = float('inf')
     # exception for start node: distance from start node to itself is 0
     shortest_path[start] = 0
 
-    # loop through all unvisted nodes
-    while unvisitedNodes:
-        # find the next min node of current node
-        min_node = None
-        for node in unvisitedNodes:
-            if min_node is None:
-                min_node = node
-            elif shortest_path[node] < shortest_path[min_node]:
-                min_node = node
+    # For back tracking from end to start
+    track_precessor = {}
 
-        # loop through every options of the next node just found
-        path_options = graph[min_node].items()
+    # Initial priority queue with heapq
+    pq = [(0, start)]
+    heapq.heapify(pq)
+    # Track the visited node:
+    visited = {}
+    while pq:
+
+        node = heapq.heappop(pq)[1]
+
+        visited[node] = True
+
+        path_options = graph[node].items()
+
         for child_node, weight in path_options:
-            if weight + shortest_path[min_node] < shortest_path[child_node]:
-                shortest_path[child_node] = weight + shortest_path[min_node]
-                track_precessor[child_node] = min_node
+            if child_node not in visited:
+                heapq.heappush(pq, (weight, child_node))
+            
+            if weight + shortest_path[node] < shortest_path[child_node]:
+                shortest_path[child_node] = weight + shortest_path[node]
+                track_precessor[child_node] = node
 
-        unvisitedNodes.pop(min_node)
     # back tracking from to end to start
     current_node = end
     optimal_path = []
@@ -56,4 +62,5 @@ def dijkstra(graph, start, end):
         print('Total cost: ' + str(shortest_path[end]))
 
 
-dijkstra(graph, 'A', 'F')
+dijkstra(graph, 'B', 'E')
+dijkstra(graph, 'A', 'E')
